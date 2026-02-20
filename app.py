@@ -3,7 +3,6 @@ import joblib
 import logging
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Setup logging for debugging
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
@@ -12,7 +11,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# App configuration
 st.set_page_config(
     page_title="Fake News Detector",
     layout="centered",
@@ -26,7 +24,6 @@ st.write(
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Load resources once
 @st.cache_resource(show_spinner=False)
 def load_resources():
     try:
@@ -49,7 +46,6 @@ def load_resources():
 vectorizer, model = load_resources()
 
 # ──────────────────────────────────────────────────────────────────────────────
-# User input
 news_text = st.text_area("News Article", height=200)
 
 if st.button("Check News"):
@@ -58,11 +54,10 @@ if st.button("Check News"):
     else:
         with st.spinner("Analyzing the news..."):
             try:
-                # Transform input
                 X = vectorizer.transform([news_text])
                 logger.debug(f"Transformed input shape: {X.shape}")
 
-                # Get prediction and optional confidence
+
                 pred = model.predict(X)[0]
                 confidence = None
                 if hasattr(model, "predict_proba"):
@@ -70,7 +65,7 @@ if st.button("Check News"):
                     confidence = probs.max()
                     logger.debug(f"Predicted probabilities: {probs}")
 
-                # Display results
+            
                 if pred == 1:
                     st.success("🟢 This news appears to be REAL.")
                 else:
@@ -79,7 +74,7 @@ if st.button("Check News"):
                 if confidence is not None:
                     st.write(f"**Confidence:** {confidence:.2f}")
 
-                # Optional: log the user input and result
+                
                 logger.info(f"Input length={len(news_text)} chars; Prediction={pred}; Confidence={confidence}")
             except Exception as pred_err:
                 logger.exception("❌ Error during prediction.")
